@@ -1,0 +1,60 @@
+export function AdminPanel() {
+  const [bookings, setBookings] = useState([]);
+
+  // Fetch all bookings for verification
+  const fetchBookings = async () => {
+    const { data } = await supabase.from('bookings').select('*');
+    setBookings(data);
+  };
+
+  const verifyUser = async (id) => {
+    await supabase.from('bookings').update({ verified: true }).eq('id', id);
+    alert("User ID Verified. Ticket Activated.");
+  };
+
+  return (
+    <div className="p-8 bg-[#0a0a0a] min-h-screen">
+      <h1 className="text-4xl font-heading mb-10">ADMIN DASHBOARD</h1>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="glass p-8">
+          <p className="text-gray-500 text-xs uppercase mb-2">Total Revenue</p>
+          <h2 className="text-4xl font-bold text-cyan-400">$142,500</h2>
+        </div>
+        <div className="glass p-8">
+          <p className="text-gray-500 text-xs uppercase mb-2">Tickets Sold</p>
+          <h2 className="text-4xl font-bold text-purple-500">482 / 1000</h2>
+        </div>
+      </div>
+
+      <div className="glass overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-white/5 text-xs uppercase text-gray-400">
+            <tr>
+              <th className="p-4">Customer</th>
+              <th className="p-4">ID Document</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Action</th>
+            </tr>
+          </thead>
+          <tbody className="text-sm">
+            {bookings.map(b => (
+              <tr key={b.id} className="border-t border-white/5">
+                <td className="p-4">{b.full_name}<br/><span className="text-xs text-gray-500">{b.email}</span></td>
+                <td className="p-4">
+                   <a href={b.id_document_url} target="_blank" className="text-cyan-400 hover:underline italic">View Document</a>
+                </td>
+                <td className="p-4">
+                  {b.verified ? <span className="text-green-500">Verified</span> : <span className="text-orange-500">Pending</span>}
+                </td>
+                <td className="p-4">
+                  <button onClick={() => verifyUser(b.id)} className="bg-white text-black px-4 py-1 rounded font-bold text-xs">APPROVE</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
